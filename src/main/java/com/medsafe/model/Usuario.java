@@ -21,8 +21,9 @@ public class Usuario {
 
     private Integer idade;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_perfil", length = 50)
-    private String tipoPerfil = "IDOSO";
+    private TipoPerfil tipoPerfil = TipoPerfil.IDOSO;
 
     @Column(name = "criado_em")
     private LocalDateTime criadoEm = LocalDateTime.now();

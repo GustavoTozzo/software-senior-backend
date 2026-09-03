@@ -23,6 +23,7 @@ public class HistoricoIngestao {
     @Column(name = "data_hora_realizada")
     private LocalDateTime dataHoraRealizada;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 30)
-    private String status = "PENDENTE";
+    private StatusIngestao status = StatusIngestao.PENDENTE;
 }

@@ -1,6 +1,7 @@
 package com.medsafe.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 @Data
@@ -22,6 +23,7 @@ public class Medicamento {
     @Column(name = "codigo_barras", unique = true, length = 50)
     private String codigoBarras;
 
+    @Min(0)
     @Column(name = "quantidade_atual", nullable = false)
     private Integer quantidadeAtual;
 
