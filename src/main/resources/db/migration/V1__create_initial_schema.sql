@@ -1,8 +1,8 @@
--- Schema inicial do MedSafe Senior (equivalente ao database/schema.sql, gerenciado agora via Flyway)
+-- Schema inicial do MedSafe Senior, versionado via Flyway.
 
 -- 1. Tabela de Usuários (Idosos e Cuidadores/Familiares)
 CREATE TABLE usuarios (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
     telefone VARCHAR(20),
     idade INT,
@@ -12,8 +12,8 @@ CREATE TABLE usuarios (
 
 -- 2. Tabela de Medicamentos
 CREATE TABLE medicamentos (
-    id SERIAL PRIMARY KEY,
-    usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     nome_comercial VARCHAR(150) NOT NULL,
     codigo_barras VARCHAR(50) UNIQUE,
     quantidade_atual INT NOT NULL,
@@ -23,8 +23,8 @@ CREATE TABLE medicamentos (
 
 -- 3. Tabela de Histórico de Ingestão
 CREATE TABLE historico_ingestao (
-    id SERIAL PRIMARY KEY,
-    medicamento_id INT NOT NULL REFERENCES medicamentos(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    medicamento_id BIGINT NOT NULL REFERENCES medicamentos(id) ON DELETE CASCADE,
     data_hora_programada TIMESTAMP NOT NULL,
     data_hora_realizada TIMESTAMP,
     status VARCHAR(30) DEFAULT 'PENDENTE' -- PENDENTE, TOMADO, PULADO
@@ -32,7 +32,7 @@ CREATE TABLE historico_ingestao (
 
 -- 4. Tabela de Farmácias
 CREATE TABLE farmacias (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
     telefone VARCHAR(20) NOT NULL,
     whatsapp_link VARCHAR(255)
