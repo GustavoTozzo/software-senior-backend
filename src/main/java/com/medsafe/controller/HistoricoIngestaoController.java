@@ -35,6 +35,12 @@ public class HistoricoIngestaoController {
         return historicoService.listar(medicamentoId, usuarioId, de, ate);
     }
 
+    @GetMapping("/agenda")
+    public List<HistoricoIngestaoResponse> agenda(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+        return historicoService.agenda(data);
+    }
+
     @GetMapping("/{id}")
     public HistoricoIngestaoResponse buscarPorId(@PathVariable Long id) {
         return historicoService.buscarPorId(id);

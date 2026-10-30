@@ -70,6 +70,9 @@ public class MedicamentoService {
         medicamentoRepository.save(medicamento);
     }
 
+    List<Medicamento> entidadesDoUsuarioLogado() {
+        return medicamentoRepository.findByUsuarioId(usuarioLogado.id());
+    }
 
     /** Busca o medicamento garantindo que ele pertence ao usuario logado. */
     Medicamento buscarEntidadeDoUsuario(Long id) {

@@ -16,7 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +74,56 @@ public class HistoricoIngestaoService {
         return registros.stream().map(HistoricoIngestaoResponse::from).toList();
     }
 
+    /**
+     * Doses do dia do usuario logado, geradas a partir dos horarios de cada medicamento. As doses
+     * ainda inexistentes sao criadas como PENDENTE; chamar de novo no mesmo dia nao duplica nada.
+     * Doses PENDENTE de horarios que foram removidos do medicamento deixam de aparecer.
+     */
+    public List<HistoricoIngestaoResponse> agenda(LocalDate data) {
+        LocalDate dia = data != null ? data : LocalDate.now();
+        Long usuarioId = usuarioLogado.id();
+
+        List<HistoricoIngestao> existentes = historicoRepository
+                .findByMedicamentoUsuarioIdAndDataHoraProgramadaBetweenOrderByDataHoraProgramadaDesc(
+                        usuarioId, dia.atStartOfDay(), dia.atTime(LocalTime.MAX));
+        Map<String, HistoricoIngestao> porChave = new HashMap<>();
+        existentes.forEach(h -> porChave.put(chave(h.getMedicamento().getId(), h.getDataHoraProgramada()), h));
+
+        Set<String> chavesAtuais = new HashSet<>();
+        List<HistoricoIngestao> doses = new ArrayList<>();
+        List<HistoricoIngestao> novas = new ArrayList<>();
+        for (Medicamento medicamento : medicamentoService.entidadesDoUsuarioLogado()) {
+            for (LocalTime horario : Horarios.interpretar(medicamento.getHorariosProgramados())) {
+                LocalDateTime programada = dia.atTime(horario);
+                String chave = chave(medicamento.getId(), programada);
+                chavesAtuais.add(chave);
+
+                HistoricoIngestao dose = porChave.get(chave);
+                if (dose == null) {
+                    dose = new HistoricoIngestao();
+                    dose.setMedicamento(medicamento);
+                    dose.setDataHoraProgramada(programada);
+                    dose.setStatus(StatusIngestao.PENDENTE);
+                    novas.add(dose);
+                }
+                doses.add(dose);
+            }
+        }
+        if (!novas.isEmpty()) {
+            historicoRepository.saveAll(novas);
+        }
+        existentes.stream()
+                .filter(h -> !chavesAtuais.contains(chave(h.getMedicamento().getId(), h.getDataHoraProgramada())))
+                .filter(h -> h.getStatus() != StatusIngestao.PENDENTE)
+                .forEach(doses::add);
+
+        return doses.stream()
+                .sorted(Comparator.comparing(HistoricoIngestao::getDataHoraProgramada)
+                        .thenComparing(h -> h.getMedicamento().getNomeComercial()))
+                .map(HistoricoIngestaoResponse::from)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public HistoricoIngestaoResponse buscarPorId(Long id) {
         return HistoricoIngestaoResponse.from(buscarEntidadeDoUsuario(id));
@@ -101,5 +157,9 @@ public class HistoricoIngestaoService {
                 .orElseThrow(() -> new ResourceNotFoundException("HistoricoIngestao", id));
         usuarioLogado.exigirMesmoUsuario(historico.getMedicamento().getUsuario().getId());
         return historico;
+    }
+
+    private static String chave(Long medicamentoId, LocalDateTime programada) {
+        return medicamentoId + "|" + programada;
     }
 }
