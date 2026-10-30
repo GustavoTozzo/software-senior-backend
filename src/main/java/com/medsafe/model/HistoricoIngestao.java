@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "historico_ingestao")
+@Table(name = "historico_ingestao", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_historico_medicamento_programada", columnNames = {"medicamento_id", "data_hora_programada"})
+})
 public class HistoricoIngestao {
 
     @Id

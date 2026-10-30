@@ -8,6 +8,7 @@ public record MedicamentoResponse(
         String nomeComercial,
         String codigoBarras,
         Integer quantidadeAtual,
+        boolean estoqueBaixo,
         String doseFrequencia,
         String horariosProgramados
 ) {
@@ -18,6 +19,7 @@ public record MedicamentoResponse(
                 medicamento.getNomeComercial(),
                 medicamento.getCodigoBarras(),
                 medicamento.getQuantidadeAtual(),
+                medicamento.estoqueBaixo(),
                 medicamento.getDoseFrequencia(),
                 medicamento.getHorariosProgramados()
         );

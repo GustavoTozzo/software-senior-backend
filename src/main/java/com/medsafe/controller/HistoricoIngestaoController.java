@@ -6,10 +6,12 @@ import com.medsafe.dto.HistoricoIngestaoStatusUpdateRequest;
 import com.medsafe.service.HistoricoIngestaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -27,14 +29,10 @@ public class HistoricoIngestaoController {
     @GetMapping
     public List<HistoricoIngestaoResponse> listar(
             @RequestParam(required = false) Long medicamentoId,
-            @RequestParam(required = false) Long usuarioId) {
-        if (medicamentoId != null) {
-            return historicoService.listarPorMedicamento(medicamentoId);
-        }
-        if (usuarioId != null) {
-            return historicoService.listarPorUsuario(usuarioId);
-        }
-        return historicoService.listarTodos();
+            @RequestParam(required = false) Long usuarioId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate) {
+        return historicoService.listar(medicamentoId, usuarioId, de, ate);
     }
 
     @GetMapping("/{id}")

@@ -25,9 +25,7 @@ public class MedicamentoController {
 
     @GetMapping
     public List<MedicamentoResponse> listar(@RequestParam(required = false) Long usuarioId) {
-        return usuarioId != null
-                ? medicamentoService.listarPorUsuario(usuarioId)
-                : medicamentoService.listarTodos();
+        return medicamentoService.listar(usuarioId);
     }
 
     @GetMapping("/{id}")

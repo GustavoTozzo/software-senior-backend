@@ -5,11 +5,8 @@ import com.medsafe.dto.UsuarioResponse;
 import com.medsafe.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -18,14 +15,9 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<UsuarioResponse> criar(@Valid @RequestBody UsuarioRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criar(request));
-    }
-
-    @GetMapping
-    public List<UsuarioResponse> listar() {
-        return usuarioService.listarTodos();
+    @GetMapping("/me")
+    public UsuarioResponse perfilLogado() {
+        return usuarioService.perfilLogado();
     }
 
     @GetMapping("/{id}")
